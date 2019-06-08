@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int j = i + 1; j < items.length; j++) {
                 if (items[ninpos].compareTo(items[j]) > 0) {
                     ninpos = j;
-                    //swcdc
+                    //dth
                 }
             }
             swap(ninpos, i);
