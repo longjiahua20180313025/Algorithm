@@ -34,14 +34,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 displayItems(edtItems);
                 break;
             case R.id.activity_main_btn_sort:
-                directSort();
+//                directSort();
+                intsertSort();
                 displayItems(tvResult);
                 break;
             default:
                 break;
         }
     }
-
     private void displayItems(TextView tv) {
         String display = "";
         for (Integer i : items) {
@@ -56,22 +56,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //然后把无序区第一个元素和所有记录的最小元素进行交易，有区域多一个，循环往复直至无直区
         //元数数量为0
         //todo:直接选择排序的具体实现
-
-//        int num = 10;
-//        for (int i = 0; i <= num - 1; i++) {
-//            for (int j = 0; j < num - 1; j++) {
-//                if (items[j] < items[j + 1]) {
-//                    //当前的数比后面的数大时
-//                    {
-//                        int temp;//定义临时变量变量
-//                        temp = items[j];
-//                        items[j] = items[j + 1];
-//                        items[j + 1] = temp;
-//                        //比较大的数放在后面
-//                    }
-//                }
-//            }
-//        }
         for (int i = 0; i < items.length - 1; i++) {
             int ninpos = i;
             for (int j = i + 1; j < items.length; j++) {
@@ -83,7 +67,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             swap(ninpos, i);
         }
     }
-
+    private  void  intsertSort(){
+        int i;
+        for (i=1;i<items.length;i++) {
+            int temp=items[i];
+            int ha=i-1;
+        if (items[i]<items[i-1]){
+            for (int j=ha;j>0&&temp<items[j];j--){
+                items[j+1]=items[j];
+                ha--;
+            }
+            items[ha+1]=temp;
+        }
+        }
+    }
     private void swap(int i, int j){
         int temp;//定义临时变量变量
         temp = items[i];
