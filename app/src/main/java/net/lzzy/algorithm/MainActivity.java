@@ -1,13 +1,27 @@
 package net.lzzy.algorithm;
-
+import android.annotation.SuppressLint;
+import android.net.sip.SipAudioCall;
+import android.net.sip.SipSession;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import net.lzzy.algorithm.xdv.BaseSearch;
+import net.lzzy.algorithm.xdv.BaseSort;
+import net.lzzy.algorithm.xdv.SearchFactory;
+import net.lzzy.algorithm.xdv.SortFactory;
+
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
-
 /**
  * @author Administrator
  */
@@ -15,15 +29,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Integer[] items;
     private EditText edtItems;
     private TextView tvResult;
-
+    private  Spinner spinner;
+    private LinearLayout container;
+    private Spinner spSearch;
+    private Button btnSort;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         edtItems = findViewById(R.id.activity_main_edt_items);
+        initViews();
+        initSpinner();
+    }
+    @SuppressLint("WrongViewCast")
+
+    public void initSearch() {
+        spinner=findViewById(R.id.activity_main_sp);
+        spSearch.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item,SortFactory.getSortNames()));
+        container=findViewById(R.id.bt1);
+        findViewById(R.id.bt1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetSearch();
+            }
+        });
+       resetSearch();
+    }
+               private View.OnClickListener listener=new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        BaseSearch<Integer>search=SearchFactory.getInstance(spSearch.getSelectedItemPosition(),items);
+        if (search!=null){
+            int pos= (int) search.search(v.getId());
+            tvResult.setText("该元素位于数组的第".concat(String.valueOf(pos+1))+"位");
+        }
+    }
+};
+    private void resetSearch(){
+        container.removeAllViews();
+        generateItems();
+        btnSort.callOnClick();
+        for (Integer i:items){
+            Button btn=new Button(this);
+            btn.setText(String.format(i.toString(), Locale.CHINA));
+            btn.setId(i);
+            btn.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1));
+            btn.setOnClickListener(listener);
+            container.addView(btn);
+        }
+
+    }
+    private void initSpinner(){
+        spinner=findViewById(R.id.activity_main_sp);
+        String[]names={"选择排序","直接选择排序","希尔排序"};
+        spinner.setAdapter(new ArrayAdapter<>(this,android.R.layout.simple_spinner_dropdown_item,names));
+
+    }
+
+    private void initViews() {
+        edtItems =findViewById(R.id.activity_main_edt_items);
         findViewById(R.id.activity_main_btn_generate).setOnClickListener(this);
         findViewById(R.id.activity_main_btn_sort).setOnClickListener(this);
         tvResult = findViewById(R.id.activity_main_tv_result);
+
     }
 
     @Override
@@ -34,10 +103,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 displayItems(edtItems);
                 break;
             case R.id.activity_main_btn_sort:
-//                directSort();
-                intsertSort();
-                displayItems(tvResult);
+                BaseSort<Integer>sort= SortFactory.getInstance(spinner.getSelectedItemPosition(),items);
+                BaseSort<Integer>sortNotNull= Objects.requireNonNull(sort);
+                sortNotNull.sortwithtime();
+                String result=sort.getResult();
+                tvResult.setText(result);
+                Toast.makeText(this, "总时长："+sort.getDuration(), Toast.LENGTH_SHORT).show();
                 break;
+
+
+
             default:
                 break;
         }
@@ -65,20 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             swap(ninpos, i);
-        }
-    }
-    private  void  intsertSort(){
-        int i;
-        for (i=1;i<items.length;i++) {
-            int temp=items[i];
-            int ha=i-1;
-        if (items[i]<items[i-1]){
-            for (int j=ha;j>0&&temp<items[j];j--){
-                items[j+1]=items[j];
-                ha--;
-            }
-            items[ha+1]=temp;
-        }
         }
     }
     private void swap(int i, int j){
